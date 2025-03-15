@@ -28,7 +28,8 @@ func main() {
 	//suscribing both services to the grpc server
 	clientgrpc.RegisterClientServiceServer(grpcServer, clientService)
 	ubergrpc.RegisterUberServiceServer(grpcServer, uberService)
-
+	
+	log.Print("Listening on port :9000")
 	//starting grpc server to listen on port 9000
 	if err := grpcServer.Serve(lis); err != nil{
 		log.Fatalf("Failed to serve GRPC server over port :9000 %v", err)

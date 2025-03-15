@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"os"
 
 	clientgrpc "github.com/diegobermudez03/uber-client/grpc_api/gen"
 	"github.com/diegobermudez03/uber-client/internal"
-	"github.com/tcnksm/go-input"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -22,9 +22,9 @@ func main() {
 	//creating grpc client
 	client := clientgrpc.NewClientServiceClient(conn)
 
-	ui := &input.UI{Writer: os.Stdout, Reader : os.Stdin}
+	scanner := bufio.NewReader(os.Stdin)
 
 	//creating service, injecting grpc client, and letting it do the rest of the work
-	service := internal.NewClientService(client, ui)
+	service := internal.NewClientService(client, scanner)
 	service.Register()
 }

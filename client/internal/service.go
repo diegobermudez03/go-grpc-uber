@@ -1,25 +1,25 @@
 package internal
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
 	clientgrpc "github.com/diegobermudez03/uber-client/grpc_api/gen"
-	"github.com/tcnksm/go-input"
 )
 
 type ClientService struct {
 	grpc 	clientgrpc.ClientServiceClient
 	token 	*string
-	ui 		*input.UI
+	scanner *bufio.Reader
 }
 
-func NewClientService(grpc clientgrpc.ClientServiceClient, ui *input.UI) *ClientService {
+func NewClientService(grpc clientgrpc.ClientServiceClient, scanner *bufio.Reader) *ClientService {
 	return &ClientService{
 		grpc: grpc,
-		ui: ui,
+		scanner: scanner,
 	}
 }
 
@@ -27,12 +27,16 @@ func NewClientService(grpc clientgrpc.ClientServiceClient, ui *input.UI) *Client
 //once registered moves on to the menu 
 func (s *ClientService) Register() {
 	//asking for user name
-	name, _ := s.ui.Ask("Please write your name", &input.Options{Required: true})
+	fmt.Printf("Please write your name: ")
+	name, _ := s.scanner.ReadString('\n')
+	name = strings.TrimSpace(name)
 
 	//asking for user number and vefying it
 	var number int64 
 	for {
-		numberStr, _ := s.ui.Ask("Please write your number", &input.Options{Required: true})
+		fmt.Printf("Please write your number: ")
+		numberStr, _ := s.scanner.ReadString('\n')
+		numberStr = strings.TrimSpace(numberStr)
 		var err error
 		number, err = strconv.ParseInt(strings.TrimSpace(numberStr), 10, 64)
 		if err != nil{
@@ -59,6 +63,39 @@ func (s *ClientService) Register() {
 	s.MainMenu()
 }
 
+
+//main menu function, simply allows to move from get service types, request rides, and exit
 func(s *ClientService) MainMenu(){
-	fmt.Printf("select")
+	for{
+		fmt.Println("\nSelect an option")
+		fmt.Println("1. Get service types")
+		fmt.Println("2. Request a ride")
+		fmt.Println("3. Exit")
+		fmt.Print("Option: ")
+		optionStr, _ := s.scanner.ReadString('\n')
+		option, err := strconv.Atoi(strings.TrimSpace(optionStr))
+		if err != nil{
+			fmt.Print("INVALID OPTION")
+			continue
+		}
+
+		switch option{
+		case 1: s.getServiceTypes()
+		case 3: return
+		}
+	}
+}
+
+//function that retrieves the service types from the grpc server
+func(s *ClientService) getServiceTypes(){
+	//calling remote method
+	serviceTypes, err := s.grpc.GetServiceTypes(context.TODO(), &clientgrpc.SessionToken{Token: *s.token})
+	if err != nil{
+		fmt.Printf("Error retrieving the service types %v\n", err)
+		return 
+	}
+	//iterating over types and printing them
+	for _, sType := range serviceTypes.Types{
+		fmt.Printf("Tipo: %s     -     Costo: %.2f hora     -     Descripcion: %s\n", sType.Name, sType.HourPrice, sType.Description)
+	}
 }

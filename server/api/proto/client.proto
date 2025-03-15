@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package clientgrpc;
+
+option go_package = ".;clientgrpc";
+
+
+service ClientService {
+    rpc ClientRegister(ClientRegisterDTO) returns (SessionToken);
+    rpc GetServiceTypes(SessionToken) returns(ListServiceTypes);
+    rpc RequestUber(UberRequestDTO) returns (UberSelected);
+
+}
+
+//for register method
+message ClientRegisterDTO{
+    string email = 1;
+    uint64 number = 2;
+}
+
+//for get services method, ensure that its authenticated
+message SessionToken{
+    string token = 1;
+}
+
+message ListServiceTypes{
+    repeated ServiceType types = 1;
+}
+
+message ServiceType{
+    string name = 1;
+    double hour_price = 2;
+    string description = 3;
+}
+
+//for request uber method
+message UberRequestDTO{
+    string token = 1;
+    Position position = 2;
+}
+
+message UberSelected{
+    string placa = 1;
+    Position uber_position = 2;
+    double distance = 3;
+    double price = 4;
+}
+
+message Position{
+    uint32 x_position = 1;
+    uint32 y_position = 2;
+}

@@ -6,10 +6,10 @@ option go_package = ".;ubergrpc";
 
 import "google/protobuf/empty.proto";
 
-service TaxiService {
+service UberService {
     rpc UberRegister(UberRegisterDTO) returns (Ackonledgment);
     rpc UpdatePosition(stream PositionUpdate) returns (google.protobuf.Empty);
-    rpc GetRequests(RequestAck) returns (stream RequestsUpdates);
+    rpc GetRequests(stream RequestAnswer) returns (stream RequestsUpdates);
 }
 
 //for uber registering
@@ -30,7 +30,7 @@ message PositionUpdate{
 
 
 //for getting ride requests
-message RequestAck{
+message RequestAnswer{
     bool accepted = 1;
 }
 

@@ -8,7 +8,7 @@ option go_package = ".;clientgrpc";
 service ClientService {
     rpc ClientRegister(ClientRegisterDTO) returns (SessionToken);
     rpc GetServiceTypes(SessionToken) returns(ListServiceTypes);
-    rpc RequestUber(UberRequestDTO) returns (UberSelected);
+    rpc RequestUber(UberRequestDTO) returns (stream UberRequestUpdate);
 
 }
 
@@ -37,6 +37,14 @@ message ServiceType{
 message UberRequestDTO{
     string token = 1;
     Position position = 2;
+}
+
+message UberRequestUpdate{
+    oneof mess_type{
+        UberSelected selected = 1;
+        UberSelected asked = 2;
+        UberSelected denied = 3;
+    }
 }
 
 message UberSelected{

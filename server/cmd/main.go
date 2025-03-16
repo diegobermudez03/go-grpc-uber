@@ -22,8 +22,8 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	//creating services to suscribe to grpc
-	clientService := services.NewClientService()
 	uberService := services.NewUberService()
+	clientService := services.NewClientService(uberService.(*services.UberService))
 
 	//suscribing both services to the grpc server
 	clientgrpc.RegisterClientServiceServer(grpcServer, clientService)

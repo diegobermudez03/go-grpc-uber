@@ -17,3 +17,14 @@ type UberServiceTypeModel struct{
 	HourPrice	float64 
 	Description string
 }
+
+type UberTaxiModel struct{
+	Placa 		string 
+	ServiceType string 
+	Position 	*PositionModel
+}
+
+type PositionModel struct{
+	X	int 
+	Y 	int
+}

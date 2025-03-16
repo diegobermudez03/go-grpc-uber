@@ -14,16 +14,16 @@ import (
 type ClientService struct {
 	registeredClients	map[string]*models.ClientModel
 	clientsLock 		sync.RWMutex
+	uberService 		*UberService
 
-	uberServicTypes 	[]models.UberServiceTypeModel
 	clientgrpc.UnimplementedClientServiceServer
 }
 
-func NewClientService() clientgrpc.ClientServiceServer{
+func NewClientService(uberService *UberService) clientgrpc.ClientServiceServer{
 	return &ClientService{
+		uberService: uberService,
 		registeredClients: map[string]*models.ClientModel{},
 		clientsLock: sync.RWMutex{},
-		uberServicTypes: getServiceTypes(),
 	}
 }
 
@@ -61,8 +61,8 @@ func(s *ClientService) GetServiceTypes(ctx context.Context, token *clientgrpc.Se
 
 	//if user was authorized then returning the service types, for this we need
 	//to map the internal model type to the grpc model type
-	returnDtos := make([]*clientgrpc.ServiceType,0 ,len(s.uberServicTypes))
-	for _, sType := range s.uberServicTypes{
+	returnDtos := make([]*clientgrpc.ServiceType,0 ,len(s.uberService.ServiceTypes))
+	for _, sType := range s.uberService.ServiceTypes{
 		returnDtos = append(returnDtos, &clientgrpc.ServiceType{
 			Name: sType.Name,
 			HourPrice: sType.HourPrice,
@@ -85,16 +85,3 @@ func (s *ClientService) RequestUber(request *clientgrpc.UberRequestDTO, stream c
 
 
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////						PRIVATE METHODS										///////////////////////////////////
-
-func getServiceTypes()[]models.UberServiceTypeModel{
-	return []models.UberServiceTypeModel{
-		{Name: "Normal", HourPrice: 50000, Description: "Taxis amarillos"},
-		{Name: "Express", HourPrice:  70000, Description: "Taxis mas amplios y comodos"},
-		{Name: "Excursion", HourPrice:  120000, Description: "Te llevan a cualquier lugar y te esperan"},
-	}
-}

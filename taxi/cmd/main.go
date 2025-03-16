@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	clientgrpc "github.com/diegobermudez03/uber-client/grpc_api/gen"
-	"github.com/diegobermudez03/uber-client/internal"
+	ubergrpc "github.com/diegobermudez03/uber-taxi/grpc_api/gen"
+	"github.com/diegobermudez03/uber-taxi/internal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -20,11 +20,11 @@ func main() {
 	defer conn.Close()
 
 	//creating grpc client
-	client := clientgrpc.NewClientServiceClient(conn)
+	client := ubergrpc.NewUberServiceClient(conn)
 
 	scanner := bufio.NewReader(os.Stdin)
-
-	//creating service, injecting grpc client, and letting it do the rest of the work
-	service := internal.NewClientService(client, scanner)
+	
+	//creating service and injecting grpc dependencies
+	service := internal.NewUberService(client, scanner)
 	service.Register()
 }

@@ -26,4 +26,16 @@ class GrpcRepository {
       return Tuple2(null, e.toString());
     }
   }
+
+  Stream<RequestsUpdates> getRequests(Stream<RequestAnswer> answerStream) async*{
+    try{
+      final call = _client.getRequests(answerStream);
+
+      await for(final update in call){
+        yield update;
+      }
+    }catch(e){
+      print('errooooooooooor: $e');
+    }
+  }
 }

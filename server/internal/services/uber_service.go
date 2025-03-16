@@ -52,16 +52,20 @@ func (s *UberService) UberRegister(ctx context.Context, dto *ubergrpc.UberRegist
 //for live updating uber posittion, client streaming stream -> empty
 //client sends live updates of his position, server doesnt respond
 func (s *UberService) UpdatePosition(stream ubergrpc.UberService_UpdatePositionServer) error{
+	update, err := stream.Recv()
+	if err != nil{
+		log.Println("Error STABLISHING location connection")
+		return nil
+	}
+	if _, ok := s.registeredTaxis[update.Placa]; !ok{
+		log.Printf("Unregistered taxi %s tried to send update", update.Placa)
+		return models.ErrUnahtorized
+	}
+	//critic zone, but is only reading locking
+	s.taxisLock.RLock()
+	taxi := s.registeredTaxis[update.Placa]
+	s.taxisLock.RUnlock()
 	for{
-		update, err := stream.Recv()
-		if err != nil{
-			log.Println("Error with location update")
-			break
-		}
-		if _, ok := s.registeredTaxis[update.Placa]; !ok{
-			log.Printf("Unregistered taxi %s tried to send update", update.Placa)
-			return models.ErrUnahtorized
-		}
 		if update.Position.XPosition == 0 || update.Position.YPosition == 0{
 			log.Printf("Taxi of placa %s terminated its connection", update.Placa)
 			//removing the taxi, critic zone, so using mutex
@@ -70,10 +74,6 @@ func (s *UberService) UpdatePosition(stream ubergrpc.UberService_UpdatePositionS
 			s.taxisLock.Unlock()
 			break
 		}
-		//critic zone, but is only reading locking
-		s.taxisLock.RLock()
-		taxi := s.registeredTaxis[update.Placa]
-		s.taxisLock.RUnlock()
 
 		//only this taxi critic zone, its position
 		taxi.Lock.Lock()
@@ -85,6 +85,12 @@ func (s *UberService) UpdatePosition(stream ubergrpc.UberService_UpdatePositionS
 		taxi.Lock.Unlock()
 
 		log.Printf("updated position of %s (%d, %d)",update.Placa, taxi.Position.X, taxi.Position.Y)
+		update, err = stream.Recv()
+		if err != nil{
+			taxi.Position = nil
+			log.Printf("Taxi %s disconnected location update", taxi.Placa)
+			return nil
+		}
 	}
 	return nil
 }
@@ -94,6 +100,7 @@ func (s *UberService) UpdatePosition(stream ubergrpc.UberService_UpdatePositionS
 func (s *UberService) GetRequests(stream ubergrpc.UberService_GetRequestsServer) error{
 	req, err := stream.Recv()
 	if err != nil{
+		log.Printf("Error with uber trying to connect to requests %v", err)
 		return err 
 	}
 	//if the taxi is not registered then F
@@ -101,7 +108,7 @@ func (s *UberService) GetRequests(stream ubergrpc.UberService_GetRequestsServer)
 	if !ok{
 		return models.ErrUnahtorized
 	}
-
+	log.Printf("Uber %s connected to get requests", req.Placa)
 	//we create and set the channel
 	newComChannel := make(chan models.RequestMessage)
 	taxi.ComChannel = newComChannel
@@ -121,7 +128,10 @@ func (s *UberService) GetRequests(stream ubergrpc.UberService_GetRequestsServer)
 				Distance: message.Distance,
 			})
 			//now wait for the taxi answer
-			answer, _ := stream.Recv()
+			answer, err := stream.Recv()
+			if err != nil{
+				break
+			}
 			if answer.Accepted{
 				//if we do accept it, then we send a message indicating that in the channel and we set ourselves as occupied
 				newComChannel <- models.RequestMessage{}
@@ -145,6 +155,7 @@ func (s *UberService) ClientRequestUber(clientX, clientY int, client models.Clie
 	for{
 		bot, dBot, real, dReal := s.getClosestTaxi(clientX, clientY, toAvoid)
 		if real != nil{
+			log.Printf("Asking taxi %s for ride of %s", real.Placa, client.Name)
 			//we send the message to the client that we are asking
 			channel <- models.ChannelMessage{
 				Asking: true,
@@ -165,11 +176,14 @@ func (s *UberService) ClientRequestUber(clientX, clientY int, client models.Clie
 
 			//if uber denied, then we send the message to client indicating that
 			if answer.Distance == -1{
+				log.Printf("Taxi %s denied ride of %s", real.Placa, client.Name)
+				toAvoid[real.Placa] = true
 				channel <- models.ChannelMessage{
 					Denied: true,
 					Placa: real.Placa,
 				}
 			}else{	//if uber accepted, then we send the message and close everything
+				log.Printf("Taxi %s Accepted ride of %s", real.Placa, client.Name)
 				channel <- models.ChannelMessage{
 					Found: true,
 					Position: *real.Position,
@@ -181,6 +195,7 @@ func (s *UberService) ClientRequestUber(clientX, clientY int, client models.Clie
 				return
 			}
 		}else{ //if the closest taxi was not real but a Bot, then we simply send the info to the client and update occupied
+			log.Printf("Taxi %s Accepted ride of %s", bot.Placa, client.Name)
 			channel <- models.ChannelMessage{
 				Found: true,
 				Position: *bot.Position,
@@ -204,7 +219,7 @@ func (s *UberService) getClosestTaxi(clientX, clientY int, toAvoid map[string]bo
 	for _, taxi := range s.registeredTaxis{
 		//if the taxi isin the toavoid set, means that we already asked him and denied, so we avoid
 		//or also, if the taxi is occupied, then we avoid it
-		if _, ok := toAvoid[taxi.Placa]; ok || taxi.Occupied{
+		if _, ok := toAvoid[taxi.Placa]; ok || taxi.Occupied || taxi.Position == nil{
 			continue
 		}
 		//critic zone of taxi position, so we use the lock

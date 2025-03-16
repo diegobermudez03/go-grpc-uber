@@ -110,12 +110,12 @@ func(s *ClientService) requestRide(){
 
 	//validate both inputs
 	xPos, err := strconv.Atoi(strings.TrimSpace(xPosStr))
-	if err != nil{
+	if err != nil || xPos > 10 || xPos < 1{
 		fmt.Println("INVALID POSITION")
 		return 
 	}
 	yPos, err := strconv.Atoi(strings.TrimSpace(yPosStr))
-	if err != nil{
+	if err != nil || yPos > 10 || yPos < 1{
 		fmt.Println("INVALID POSITION")
 		return 
 	}
@@ -145,18 +145,18 @@ func(s *ClientService) requestRide(){
 		selected := requestUpdate.GetSelected()
 		//checking different messages types, any requested, denied or accepted
 		if asked != nil{
-			fmt.Printf("Server is asking to uber %s", asked.Placa)
+			fmt.Printf("\nServer is asking to uber %s", asked.Placa)
 		}else if denied != nil{
-			fmt.Printf("Uber %s denied the request, searching for more taxis", denied.Placa)
+			fmt.Printf("\nUber %s denied the request, searching for more taxis", denied.Placa)
 		}else if selected != nil{
-			fmt.Printf("Uber %s accepted the ride, is at location (%d, %d), total distance: %.2f, price: %.2f", 
+			fmt.Printf("\nUber %s accepted the ride, is at location (%d, %d), total distance: %.2f, price: %.2f", 
 			selected.Placa, 
 			selected.UberPosition.XPosition, 
 			selected.UberPosition.YPosition, 
 			selected.Distance,
 			selected.Price,
 			)
-			fmt.Println("Enter something whenever you want to go back to the menu: ")
+			fmt.Println("\nEnter something whenever you want to go back to the menu: ")
 			s.scanner.ReadString('\n')
 			return
 		}

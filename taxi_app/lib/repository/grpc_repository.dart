@@ -16,4 +16,14 @@ class GrpcRepository {
       return Tuple2(false, e.toString());
     }
   }
+
+  Future<Tuple2<void, String>> updatePosition(Stream<PositionUpdate> posStream) async{
+    try{
+      final call = _client.updatePosition(posStream);
+      await call;
+      return Tuple2(null, "");
+    }catch(e){
+      return Tuple2(null, e.toString());
+    }
+  }
 }

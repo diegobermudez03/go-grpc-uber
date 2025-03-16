@@ -1,5 +1,6 @@
 
 import 'package:bloc/bloc.dart';
+import 'package:taxi_app/presentation/global_state.dart';
 import 'package:taxi_app/repository/grpc_repository.dart';
 
 class RegistrationBloc extends Cubit<RegistraionState>{
@@ -16,6 +17,7 @@ class RegistrationBloc extends Cubit<RegistraionState>{
     }else if(!res.value1){
       emit(RegistrationError("something went wrong"));
     }else{
+      GlobalContext.placa = placa;
       emit(RegistrationSuccess());
     }
   }

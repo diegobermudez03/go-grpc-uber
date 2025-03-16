@@ -9,3 +9,9 @@ protoc -I.<RELATIVE_PATH_TO_PROTO_DIR> --go_out=.<RELATIVE_OUTPUT_PATH_FOR_STRUC
 --go-grpc_out=./grpc_api/gen/clientgrpc	Generates gRPC service definitions (client_grpc.pb.go).
 client.proto	                        The .proto file to compile.
 
+for dart:
+protoc --dart_out=grpc:lib/repository/gen -Ilib/repository/proto lib/repository/proto/uber.proto
+
+
+this command includes the well known types aka google empty
+protoc --dart_out=grpc:lib/repository/gen -Ilib/repository/proto -I"C:\Archivos de programa\protoc-29.0-win64\include" lib/repository/proto/uber.proto

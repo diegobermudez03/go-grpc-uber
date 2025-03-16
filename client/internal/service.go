@@ -81,6 +81,7 @@ func(s *ClientService) MainMenu(){
 
 		switch option{
 		case 1: s.getServiceTypes()
+		case 2: s.requestRide()
 		case 3: return
 		}
 	}
@@ -98,4 +99,67 @@ func(s *ClientService) getServiceTypes(){
 	for _, sType := range serviceTypes.Types{
 		fmt.Printf("Tipo: %s     -     Costo: %.2f hora     -     Descripcion: %s\n", sType.Name, sType.HourPrice, sType.Description)
 	}
+}
+
+//to request a taxi ride
+func(s *ClientService) requestRide(){
+	fmt.Print("Enter X position: ")
+	xPosStr, _ := s.scanner.ReadString('\n')
+	fmt.Print("Enter Y position: ")
+	yPosStr, _ := s.scanner.ReadString('\n')
+
+	//validate both inputs
+	xPos, err := strconv.Atoi(strings.TrimSpace(xPosStr))
+	if err != nil{
+		fmt.Println("INVALID POSITION")
+		return 
+	}
+	yPos, err := strconv.Atoi(strings.TrimSpace(yPosStr))
+	if err != nil{
+		fmt.Println("INVALID POSITION")
+		return 
+	}
+
+	//if both inputs are correct then connect to server
+	connection, err := s.grpc.RequestUber(context.TODO(), &clientgrpc.UberRequestDTO{
+		Token : *s.token,
+		Position: &clientgrpc.Position{
+			XPosition: uint32(xPos),
+			YPosition: uint32(yPos),
+		},
+	})
+	if err != nil{
+		fmt.Println("Error requesting ride", err)
+		return
+	}
+
+	//listen for updates on the connection
+	for{
+		requestUpdate, err := connection.Recv()
+		if err != nil{
+			fmt.Println("Error with ride request", err)
+			return 
+		}
+		asked := requestUpdate.GetAsked()
+		denied := requestUpdate.GetDenied()
+		selected := requestUpdate.GetSelected()
+		//checking different messages types, any requested, denied or accepted
+		if asked != nil{
+			fmt.Printf("Server is asking to uber %s", asked.Placa)
+		}else if denied != nil{
+			fmt.Printf("Uber %s denied the request, searching for more taxis", denied.Placa)
+		}else if selected != nil{
+			fmt.Printf("Uber %s accepted the ride, is at location (%d, %d), total distance: %.2f, price: %.2f", 
+			selected.Placa, 
+			selected.UberPosition.XPosition, 
+			selected.UberPosition.YPosition, 
+			selected.Distance,
+			selected.Price,
+			)
+			fmt.Println("Enter something whenever you want to go back to the menu: ")
+			s.scanner.ReadString('\n')
+			return
+		}
+	}
+
 }

@@ -47,8 +47,13 @@ func (s *UberService) Register(){
 	}
 	s.placa = placa
 	fmt.Println("Succesfully registered")
-	//send loc updates
-	s.LocationUpdates()
+	
+	//once registered we move on to the main uber page, thta uber page will receive 2 
+	s.MainPageUber()
+}
+
+func (s *UberService) MainPageUber(){
+
 }
 
 

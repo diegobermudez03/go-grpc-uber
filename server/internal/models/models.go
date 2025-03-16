@@ -1,6 +1,9 @@
 package models
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 var (
 	ErrUserAlreadyRegistered = errors.New("USER_ALREADY_REGISTERED")
@@ -21,10 +24,30 @@ type UberServiceTypeModel struct{
 type UberTaxiModel struct{
 	Placa 		string 
 	ServiceType string 
+	Bot			bool
+	Occupied	bool
 	Position 	*PositionModel
+	Lock		sync.RWMutex
+	ComChannel  chan RequestMessage
 }
 
 type PositionModel struct{
 	X	int 
 	Y 	int
+}
+
+type ChannelMessage struct{
+	Asking bool
+	Found bool
+	Denied bool 
+	Price float64
+	Position PositionModel
+	Placa string
+	Distance float64
+}
+
+type RequestMessage struct{
+	Client ClientModel
+	Distance float64
+	Position PositionModel
 }

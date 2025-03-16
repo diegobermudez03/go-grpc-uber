@@ -57,19 +57,21 @@ final $typed_data.Uint8List positionUpdateDescriptor = $convert.base64Decode(
 const RequestAnswer$json = {
   '1': 'RequestAnswer',
   '2': [
-    {'1': 'accepted', '3': 1, '4': 1, '5': 8, '10': 'accepted'},
+    {'1': 'placa', '3': 1, '4': 1, '5': 9, '10': 'placa'},
+    {'1': 'accepted', '3': 2, '4': 1, '5': 8, '10': 'accepted'},
   ],
 };
 
 /// Descriptor for `RequestAnswer`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List requestAnswerDescriptor = $convert.base64Decode(
-    'Cg1SZXF1ZXN0QW5zd2VyEhoKCGFjY2VwdGVkGAEgASgIUghhY2NlcHRlZA==');
+    'Cg1SZXF1ZXN0QW5zd2VyEhQKBXBsYWNhGAEgASgJUgVwbGFjYRIaCghhY2NlcHRlZBgCIAEoCF'
+    'IIYWNjZXB0ZWQ=');
 
 @$core.Deprecated('Use requestsUpdatesDescriptor instead')
 const RequestsUpdates$json = {
   '1': 'RequestsUpdates',
   '2': [
-    {'1': 'client_email', '3': 1, '4': 1, '5': 9, '10': 'clientEmail'},
+    {'1': 'client_name', '3': 1, '4': 1, '5': 9, '10': 'clientName'},
     {'1': 'client_psoition', '3': 2, '4': 1, '5': 11, '6': '.ubergrpc.Position', '10': 'clientPsoition'},
     {'1': 'distance', '3': 3, '4': 1, '5': 1, '10': 'distance'},
     {'1': 'price', '3': 4, '4': 1, '5': 1, '10': 'price'},
@@ -78,9 +80,9 @@ const RequestsUpdates$json = {
 
 /// Descriptor for `RequestsUpdates`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List requestsUpdatesDescriptor = $convert.base64Decode(
-    'Cg9SZXF1ZXN0c1VwZGF0ZXMSIQoMY2xpZW50X2VtYWlsGAEgASgJUgtjbGllbnRFbWFpbBI7Cg'
-    '9jbGllbnRfcHNvaXRpb24YAiABKAsyEi51YmVyZ3JwYy5Qb3NpdGlvblIOY2xpZW50UHNvaXRp'
-    'b24SGgoIZGlzdGFuY2UYAyABKAFSCGRpc3RhbmNlEhQKBXByaWNlGAQgASgBUgVwcmljZQ==');
+    'Cg9SZXF1ZXN0c1VwZGF0ZXMSHwoLY2xpZW50X25hbWUYASABKAlSCmNsaWVudE5hbWUSOwoPY2'
+    'xpZW50X3Bzb2l0aW9uGAIgASgLMhIudWJlcmdycGMuUG9zaXRpb25SDmNsaWVudFBzb2l0aW9u'
+    'EhoKCGRpc3RhbmNlGAMgASgBUghkaXN0YW5jZRIUCgVwcmljZRgEIAEoAVIFcHJpY2U=');
 
 @$core.Deprecated('Use positionDescriptor instead')
 const Position$json = {

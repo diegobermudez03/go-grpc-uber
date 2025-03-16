@@ -198,9 +198,13 @@ class PositionUpdate extends $pb.GeneratedMessage {
 /// for getting ride requests
 class RequestAnswer extends $pb.GeneratedMessage {
   factory RequestAnswer({
+    $core.String? placa,
     $core.bool? accepted,
   }) {
     final $result = create();
+    if (placa != null) {
+      $result.placa = placa;
+    }
     if (accepted != null) {
       $result.accepted = accepted;
     }
@@ -211,7 +215,8 @@ class RequestAnswer extends $pb.GeneratedMessage {
   factory RequestAnswer.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestAnswer', package: const $pb.PackageName(_omitMessageNames ? '' : 'ubergrpc'), createEmptyInstance: create)
-    ..aOB(1, _omitFieldNames ? '' : 'accepted')
+    ..aOS(1, _omitFieldNames ? '' : 'placa')
+    ..aOB(2, _omitFieldNames ? '' : 'accepted')
     ..hasRequiredFields = false
   ;
 
@@ -237,25 +242,34 @@ class RequestAnswer extends $pb.GeneratedMessage {
   static RequestAnswer? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.bool get accepted => $_getBF(0);
+  $core.String get placa => $_getSZ(0);
   @$pb.TagNumber(1)
-  set accepted($core.bool v) { $_setBool(0, v); }
+  set placa($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasAccepted() => $_has(0);
+  $core.bool hasPlaca() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAccepted() => clearField(1);
+  void clearPlaca() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get accepted => $_getBF(1);
+  @$pb.TagNumber(2)
+  set accepted($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAccepted() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAccepted() => clearField(2);
 }
 
 class RequestsUpdates extends $pb.GeneratedMessage {
   factory RequestsUpdates({
-    $core.String? clientEmail,
+    $core.String? clientName,
     Position? clientPsoition,
     $core.double? distance,
     $core.double? price,
   }) {
     final $result = create();
-    if (clientEmail != null) {
-      $result.clientEmail = clientEmail;
+    if (clientName != null) {
+      $result.clientName = clientName;
     }
     if (clientPsoition != null) {
       $result.clientPsoition = clientPsoition;
@@ -273,7 +287,7 @@ class RequestsUpdates extends $pb.GeneratedMessage {
   factory RequestsUpdates.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestsUpdates', package: const $pb.PackageName(_omitMessageNames ? '' : 'ubergrpc'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'clientEmail')
+    ..aOS(1, _omitFieldNames ? '' : 'clientName')
     ..aOM<Position>(2, _omitFieldNames ? '' : 'clientPsoition', subBuilder: Position.create)
     ..a<$core.double>(3, _omitFieldNames ? '' : 'distance', $pb.PbFieldType.OD)
     ..a<$core.double>(4, _omitFieldNames ? '' : 'price', $pb.PbFieldType.OD)
@@ -302,13 +316,13 @@ class RequestsUpdates extends $pb.GeneratedMessage {
   static RequestsUpdates? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get clientEmail => $_getSZ(0);
+  $core.String get clientName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set clientEmail($core.String v) { $_setString(0, v); }
+  set clientName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasClientEmail() => $_has(0);
+  $core.bool hasClientName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearClientEmail() => clearField(1);
+  void clearClientName() => clearField(1);
 
   @$pb.TagNumber(2)
   Position get clientPsoition => $_getN(1);

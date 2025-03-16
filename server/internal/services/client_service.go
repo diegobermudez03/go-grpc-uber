@@ -80,6 +80,52 @@ func(s *ClientService) GetServiceTypes(ctx context.Context, token *clientgrpc.Se
 //for requesting the uber ride, server streaming message -> stream
 //client sends ride request, server sends live updates of process of getting an uber
 func (s *ClientService) RequestUber(request *clientgrpc.UberRequestDTO, stream clientgrpc.ClientService_RequestUberServer) error{
+	client, ok := s.registeredClients[request.Token]
+	if !ok{
+		return models.ErrUnahtorized
+	}
+	//create a new go routine (thread) to search for the ubers in the uber service
+	channel := make(chan models.ChannelMessage)
+	go s.uberService.ClientRequestUber(int(request.Position.XPosition), int(request.Position.YPosition), *client, channel)
+
+	//meanwhile here we listen
+	for{
+		//receiving message from channel
+		message, isOpen :=<- channel
+		if !isOpen {
+			break
+		}
+		grpcMessage := clientgrpc.UberRequestUpdate{}
+		uberDto := &clientgrpc.UberSelected{
+			Placa: message.Placa,
+			UberPosition: &clientgrpc.Position{
+				XPosition: uint32(message.Position.X),
+				YPosition: uint32(message.Position.Y),
+			},
+			Distance: message.Distance,
+			Price: message.Price,
+		}
+		//checking what type of message is and creating the according in grpc
+		if message.Found{
+			grpcMessage.MessType = &clientgrpc.UberRequestUpdate_Selected{
+				Selected: uberDto,
+			}
+		}else if message.Asking{
+			grpcMessage.MessType = &clientgrpc.UberRequestUpdate_Asked{
+				Asked: uberDto,
+			}
+		}else if message.Denied{
+			grpcMessage.MessType = &clientgrpc.UberRequestUpdate_Denied{
+				Denied:uberDto,
+			}
+		}
+
+		//sending the message, and if it was found, then we break because we finished
+		stream.Send(&grpcMessage)
+		if  message.Found{
+			break
+		}
+	}
 	return nil
 }
 

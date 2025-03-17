@@ -10,8 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-
-
+//entry point of the server app
 func main() {
 	lis, err := net.Listen("tcp", ":9000")
 	if err != nil{

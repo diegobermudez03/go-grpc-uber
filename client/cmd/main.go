@@ -13,6 +13,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+
+//entry point for client app
 func main() {
 	scanner := bufio.NewReader(os.Stdin)
 	fmt.Println("Enter the server IP:Port (if ommited then default 127.0.0.1:9000): ")
@@ -21,7 +23,7 @@ func main() {
 		address = ":9000"
 	}
 	var conn *grpc.ClientConn
-	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(strings.TrimSpace(address), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil{
 		log.Fatalf("couldnt connect: %v", err)
 	}

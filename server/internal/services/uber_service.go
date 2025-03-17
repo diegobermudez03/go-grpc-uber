@@ -143,9 +143,9 @@ func (s *UberService) GetRequests(stream ubergrpc.UberService_GetRequestsServer)
 		}
 		}
 	}
-	return nil
 }
 
+//function that uses the Client service to request an uber for a request to this the uber service
 func (s *UberService) ClientRequestUber(clientX, clientY int, client models.ClientModel,channel chan models.ChannelMessage){
 	toAvoid := map[string]bool{}
 	position := models.PositionModel{
@@ -210,7 +210,7 @@ func (s *UberService) ClientRequestUber(clientX, clientY int, client models.Clie
 	}
 }
 
-//proivate method
+//proivate method to get the closest taxi to the client (avoiding the ones that already denied)
 func (s *UberService) getClosestTaxi(clientX, clientY int, toAvoid map[string]bool) (*models.UberTaxiModel, float64, *models.UberTaxiModel, float64){
 	var closestDistaneBot float64 = -1
 	var closestDistanceReal float64 = -1
@@ -243,6 +243,7 @@ func (s *UberService) getClosestTaxi(clientX, clientY int, toAvoid map[string]bo
 	return closestBot,closestDistaneBot , closestReal, closestDistanceReal
 }
 
+//hardcoded service types
 func getServiceTypes()map[string]models.UberServiceTypeModel{
 	return map[string]models.UberServiceTypeModel{
 		"Normal" : {Name: "Normal", HourPrice: 50000, Description: "Taxis amarillos"},
@@ -251,6 +252,7 @@ func getServiceTypes()map[string]models.UberServiceTypeModel{
 	}
 }
 
+//hardcoded initial bot taxis
 func getInitialTaxis()map[string]*models.UberTaxiModel{
 	return map[string]*models.UberTaxiModel{
 		"XXC23": {Placa: "XXC23", ServiceType: "Normal", Position: &models.PositionModel{X: 1, Y: 1}, Bot: true, Occupied: false},

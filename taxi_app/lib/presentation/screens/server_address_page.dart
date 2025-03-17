@@ -75,6 +75,8 @@ class _ServerAddressPageState extends State<ServerAddressPage> {
     }
     final getIt = GetIt.instance;
     final parts = GlobalContext.grpcServerAddress.split(":");
+    print(parts[0]);
+    print(parts[1]);
     final channel = ClientChannel(
       parts[0],
       port: int.parse(parts[1]),
